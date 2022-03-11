@@ -1,59 +1,101 @@
+// The main function for the program to find the shortest path between cities.
+//
+//Written by He Tan, March 2022
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
 #include <stdlib.h>
-#include "task.h"
-#include "queue.h"
-#include "printer.h"
+#include "heap.h"
+#include "graph.h"
 
-#define N 1 // On average there will be one print task in N seconds.
-#define P 60 // The printer in the lab can process P pages per minute (i.e. 60 seconds) at good quality.
+//the number of nodes in the graph
+#define GRAPH_NODE_N 7
+#define INFINITY 9999
 
-static void printWelcomeMessage(); // This function prints a short welcome message.
 
-void main() { 
-    printWelcomeMessage(); // Prints welcome message to the screen.
-    srand(time(NULL)); // Seeds the random function to not create the same sequences.
-    int ct = 1; // Variable used to display current time in second.
-    Printer *p = (Printer*)malloc(sizeof(Printer)); // Allocates memory for the printer.
-    p->page_rate = P; // Decides the time it takes to print P pages per minute at good quality.
-    p->current_task = NULL; // Sets the printer to be empty from start.
-    p->time_remaining = 0; // Sets remaining time to 0 to kick of the printer simulation.
-    Minheap *h = create_heap(); // Allocates memory for the binary heap and initializes its elements to NULL.
-    Task *t = NULL;
-    printf("\n Simulation starts...");
-    while (ct != 10) { // Loops until current time has reached its limit.
-        printer_status(p); // Displays the printers status to the screen.
-        if (p->time_remaining > 0) printf("%d seconds to complete the current task.\n", p->time_remaining);
-        // On average there will be one print task in N seconds but it is restricted to always creat a task at first iteration.
-        if ((1 + rand() % N) == N || ct == 1) { 
-            t = create_task(ct); // Creates a new task.
-            // Inserts the new task at the correct place in the binary heap (if it is not full).
-            if (insert_heap(h, t) == 0) puts("CAN'T INSERT TASK TO FULL QUEUE");
-        }
-        display_heap(h); // Displays the entire queue.
-        if (is_busy(p) == 0) { // If the printer isn't busy.
-            t = findmin(h); // Find task with the smallest number of pages.
-            if (delete_heap(h) == 0) puts("CAN'T DELETE TASK FROM EMPTY QUEUE"); // Deletes task from the queue (if it is not empty).
-            else {
-                start_next(p, t); // Starts printing the task that was deleted from the queue.
-                p->time_remaining = t->pages * (P / 60); // Initialize time remaining with proper time in seconds to preform task.
-            }
-        }
-        if (p->time_remaining > 0) tick(p); // Decrement the remaining time of a task with 1 second.
-        ct++; // Increment current time by 1 second.
+//the function that calculates the distances of shortest paths between cities
+//parameters: source_node, the id of the source node
+//            dist, the minimum distance
+//            graph, the graph
+void dijkstra(int source_node, int dist[], Graph* graph);
+
+
+int main(void)
+{
+    char *cities[GRAPH_NODE_N] = {"Jönköping", "Ulricehamn", "Värnamo", "Göteborg", "Helsingborg", "Ljungby", "Malmö"};
+
+    Graph* graph = createGraph(GRAPH_NODE_N);
+
+    //0: Jönköping, 1: Ulricehamn, 2: Värnamo, 3: Göteborg, 4: Helsingborg, 5: Ljunby, 6: Malmö
+    addEdge(graph, 0, 2, 2);
+    addEdge(graph, 1, 0, 4);
+    addEdge(graph, 3, 1, 15);
+    addEdge(graph, 3, 5, 5);
+    addEdge(graph, 3, 6, 23);
+    addEdge(graph, 4, 1, 17);
+    addEdge(graph, 4, 6, 11);
+    addEdge(graph, 5, 2, 9);
+    addEdge(graph, 5, 6, 13);
+
+    displayGraph(graph, cities);
+
+    int source_node;
+    printf("\n0: Jönköping, 1: Ulricehamn, 2: Värnamo, 3: Göteborg, 4: Helsingborg, 5: Ljunby, 6: Malmö");
+    printf("\nEnter the city :  ");
+    scanf("%d", &source_node);
+
+
+    //store the minimun distance
+    int dist[GRAPH_NODE_N];
+    // dijkstra(source_node, dist, graph);
+
+    printf("\nThe distance of the shortest path for travelling from %s to ", cities[source_node]);
+    for(int i=0; i<GRAPH_NODE_N; i++ )
+    {
+        if(dist[i] == INFINITY)
+            printf("\n%s !!! no connection between these two cities", cities[i]);
+        else printf("\n%s is %d", cities[i], dist[i]);
     }
-    destroy_heap(h); // Frees the memory allocated for the binary heap.
-    puts("\nSIMULATION ENDS");
-    fflush(stdin);
-    getchar();
+    printf("\n");
+    return 0;
 }
 
-static void printWelcomeMessage() { // Prints welcome message to the screen.
-    puts("*********************************************************************************************\n"
-        "Welcome!\n"
-        "This is a program that uses a binary heap implemented as an array to create a priority queue\n"
-        "that is used to preform a simulation of a laboratory printer.\n"
-        "Please enjoy!\n"
-        "*********************************************************************************************");
+void dijkstra(int source_node, int dist[], Graph* graph) //
+{   
+    
+    
+    // Steps 1 - 3
+    // AdjListNode *ptr = graph->array->head; // Tror detta blir fel
+    // ptr->graph_node_id = 0;
+    // dist[0] = ptr->weight;
+
+    // AdjListNode *ptr = graph->array->head; // Detta känns mest rätt
+    // for (size_t i = 0; i < graph->N; i++)
+    // {
+    //     if (ptr->graph_node_id == source_node)
+    //     {
+    //         ptr->graph_node_id = 0;
+    //         dist[0] = ptr->weight;
+    //     }
+    //     ptr = ptr->next;
+    // }
+    // for (size_t i = 1; i <= graph->N; i++)
+    // {
+    //     ptr->graph_node_id = 0;
+    //     dist[i] = ptr->weight;
+    // }
+    
+     
+    /*
+    ALGORITHM
+    1. Select the source node also called the initial node
+    2. Define an empty set N that will be used to hold nodes to which a shortest path has been found.
+    3. Label the initial node with , and insert it into N. 
+    // Set weight or dist = 0 of the source node.
+    4. Repeat Steps 5 to 7 until the destination node is in N or there are no more labelled nodes in N.
+    5. Consider each node that is not in N and is connected by an edge from the newly inserted node.
+    6. (a) If the node that is not in N has no label then SET the label of the 
+    node = the label of the newly inserted node + the length of the edge.
+    (b) Else if the node that is not in N was already labelled, then SET its new
+    label = minimum (label of newly inserted vertex + length of edge, old label)
+    7. Pick a node not in N that has the smallest label assigned to it and add it to N.
+    */
 }
