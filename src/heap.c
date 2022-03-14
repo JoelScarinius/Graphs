@@ -85,6 +85,26 @@ void decreaseKey(Minheap* h, int n, int dist) // FRÅGA Förstår inte riktigt h
             h->array[h->pos[n]]->dist = dist;
         }
     }
+    //  for(int i = 0; i < n; i++) {
+    //     if(heap[i][1] == u) {
+    //         if(weight < heap[i][0]) {
+    //             heap[i][0] = weight;
+    //             unsigned int parent = HEAP_PARENT(i);
+    //             while(i > 0 && heap[parent][0] > heap[i][0]) {
+    //                 //swap
+    //                 unsigned int temp1 = heap[parent][0];
+    //                 unsigned int temp2 = heap[parent][1];
+    //                 heap[parent][0] = heap[i][0];
+    //                 heap[parent][1] = heap[i][1];
+    //                 heap[i][0] = temp1;
+    //                 heap[i][1] = temp2;
+    //                 i = parent;
+    //                 parent = HEAP_PARENT(i);
+    //             }
+    //         }
+    //         break;
+    //     }
+    // }
 }
 
 MinHeapNode *findmin(Minheap *h)  // Finds the node with the shortest dist (always the root of the binary minheap).
@@ -115,6 +135,22 @@ void display_heap(Minheap *h) // Displays all the nodes in the heap.
         }
         printf("\n");
     }
+    // if (tree == NULL)
+    // {
+    //     return;
+    // }
+    // for (size_t i = 0; i < tree->key_count; i++)
+    // {
+    //     traverse(tree->children[i], level + 1);
+    //     printf("\n");
+    //     for (size_t i = 0; i < level; i++)
+    //     {
+    //         printf("  ");
+    //         //fflush(stdout);
+    //     }
+    //     printf("%d ", tree->keys[i]);
+    // }
+    // traverse(tree->children[tree->key_count], level + 1);
 }
 
 int is_empty(Minheap *h) // Checks whether the heap is empty

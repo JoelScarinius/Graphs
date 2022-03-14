@@ -98,4 +98,45 @@ void dijkstra(int source_node, int dist[], Graph* graph) //
     label = minimum (label of newly inserted vertex + length of edge, old label)
     7. Pick a node not in N that has the smallest label assigned to it and add it to N.
     */
+
+   // Testa detta
+//    unsigned int heap[n][2];
+//     unsigned int S[n];
+    
+//     for(int i = 0; i < n; i++) {
+//         distance[i][0] = 0xFFFFFFFF;
+//         distance[i][1] = 0xFFFFFFFF;
+//         heap[i][0] = 0xFFFFFFFF;
+//         heap[i][1] = i;
+//         S[i] = 0;
+//     }
+//     distance[s][0] = 0;
+//     distance[s][1] = 0;
+//     heap[s][0] = 0;
+    
+//     unsigned int heap_size = n;
+    
+//     build_min_heap(heap, heap_size);
+    
+//     while(heap_size > 0) {
+//         unsigned int u = -1;
+//         unsigned int min_val = heap_extract_min(heap, heap_size, &u);
+
+//         if (u == -1) {
+//            printf("unexpected case\n");
+//             break;
+//         }        
+//         S[u] = 1; 
+//         heap_size--;
+//         if(min_val == (unsigned int)-1) {
+//             break;
+//         } else {
+//             for (unsigned int v = 0; v < n; v++) {
+//                 unsigned int w = adj_matrix[u][v];
+//                 if (w != (unsigned int)-1 && S[v] != 1) {
+//                     relax(heap, distance, u, v, w, heap_size);
+//                 }
+//             }
+//         }
+//     }
 }
