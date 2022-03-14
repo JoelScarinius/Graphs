@@ -88,7 +88,7 @@ void dijkstra(int source_node, int dist[], Graph* graph) //
     ALGORITHM
     1. Select the source node also called the initial node
     2. Define an empty set N that will be used to hold nodes to which a shortest path has been found.
-    3. Label the initial node with , and insert it into N. 
+    3. Label the initial node with 0, and insert it into N. 
     // Set weight or dist = 0 of the source node.
     4. Repeat Steps 5 to 7 until the destination node is in N or there are no more labelled nodes in N.
     5. Consider each node that is not in N and is connected by an edge from the newly inserted node.

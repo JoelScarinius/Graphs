@@ -3,104 +3,65 @@
 
 Graph* createGraph(int numOfNodes)
 {   
-    Graph *graph = (Graph*)malloc(sizeof(Graph)); //FUCKED UP!
+    Graph *graph = (Graph*)malloc(sizeof(Graph));
     graph->N = numOfNodes;
-    AdjListNode *newNode, *last;
-    int i, j, n ,val;
-    for (i = 0; i < graph->N; i++)
-    {
-        last = NULL;
-        // Number of neighbours?
-        printf("\n Enter the number of neighbours of %d: ", i);
-        scanf("%d", &n);
-        for(j = 1; j <= n; j++)
-        {
-            printf("\n Enter the neighbour %d of %d: ", j, i);
-            scanf("%d", &val);
-            newNode = (AdjListNode*) malloc(sizeof(AdjListNode));
-            newNode->graph_node_id = val;
-            newNode->next = NULL;
-            if (graph->array[i].head == NULL) graph->array[i].head = newNode;
-            else last->next = newNode;
-            last = newNode;
-        }
+    graph->array = (AdjList*)malloc(numOfNodes * sizeof(AdjList)); // Create an N-size array of adjacency lists.  
+
+    for (int i = 0; i < numOfNodes; ++i)//Initialize each adjacency list
+    { 
+        AdjListNode* head = (AdjListNode*)malloc(sizeof(AdjListNode));
+        head->graph_node_id = i;
+        head->next = NULL;
+        graph->array[i].head = head;
     }
-    // Graph *graph = (Graph*)malloc(sizeof(Graph)); //FUCKED UP!
-    // if (graph == NULL) { // If memory wasn't possible to allocate for any reason.
-    //     puts("Failed to allocate memory on the heap!");
-    //     exit(-1);
-    // }
-    // graph->N = numOfNodes;
-    // graph->array = (AdjList*)malloc(sizeof(AdjList)); 
-    // graph->array->head = (AdjListNode*)malloc(sizeof(AdjListNode)); 
-    
-    // AdjListNode *ptr = graph->array->head; 
-    // for (size_t i = 0; i < graph->N; i++) 
-    // {
-    //     ptr->graph_node_id = i;
-    //     if (i != 6) 
-    //     {
-    //         ptr->next = (AdjListNode*)malloc(sizeof(AdjListNode)); 
-    //         ptr = ptr->next;
-    //     }
-    // }
-    // ptr->next = NULL;
-    // // Kanske behöver allokera minne för vår array graph->array
     return graph;
 }
 
-void displayGraph(Graph* graph, char **cities) // FRÅGA förstår ej denna funktion. Ska inte en parameter vara source också då?
+void displayGraph(Graph* graph, char **cities) // print the graph
 {
-    AdjListNode *ptr;
-    int i;
-    for(i = 0; i < graph->N; i++)
-    {
-        ptr = graph->array[i].head;
-        printf("\n The neighbours of node %d are:", i);
-        while(ptr != NULL)
-        {
-            printf("\t%d", ptr->graph_node_id);
-            ptr = ptr->next;
+    for (int i = 0; i < graph->N; i++) {
+        AdjListNode* head = graph->array[i].head;
+   
+        printf("\nAdjacency list of vertex %d ", head->graph_node_id);
+            
+        AdjListNode* adjNode = head->next;
+        while (adjNode != NULL) {
+            printf(" -> %d ", adjNode->graph_node_id);
+            adjNode = adjNode->next;
         }
+        printf("\n");      
     }
-    // AdjListNode *ptr = graph->array->head;
-    // for (size_t i = 0; i < graph->N; i++)
-    // {
-    //     // printf("%d: %s  ", i, cities[i]);
-    //     if (ptr->weight != 0)
-    //     {
-    //         printf("The distance between %s and %s is %d", cities[ptr->graph_node_id], cities[ptr->next->graph_node_id], ptr->weight);
-    //         ptr = ptr->next;
-    //     }
-    //     // printf("The distance between %d: %s and %d: %s is %d", i, cities[i], i, cities[i+1], );
-    // }
-    
+    printf("\n");    
 }
 
 void addEdge(Graph* graph, int source, int target, int weight) 
 {
-    AdjListNode *ptr = graph->array->head;
-    for (size_t i = 0; i <= source; i++)
-    {
-        if (ptr->graph_node_id == source)
-        {
-            ptr->weight = weight;
-            ptr->next->graph_node_id = target;
-        }
-        else ptr = ptr->next;
+    AdjListNode* newAdjListNode = (AdjListNode*)malloc(sizeof(AdjListNode));
+    newAdjListNode->graph_node_id = target;
+    newAdjListNode->next = NULL;
+
+    AdjListNode *adjListNode = graph->array[source].head;
+
+    while(adjListNode->next != NULL){
+        adjListNode = adjListNode->next;
     }
+    adjListNode->next = newAdjListNode;
 }
 
 void deleteEdge(Graph* graph, int source, int target)
 {
-    AdjListNode *ptr = graph->array->head;
-    for (size_t i = 0; i <= source; i++)
+    if (graph->array[source].head->next == NULL) return;
+    else
     {
-        if (ptr->graph_node_id == source)
-        {
-            ptr->weight = 0;
-            ptr->next->graph_node_id = target;
+        AdjListNode* prev = graph->array[source].head;
+        AdjListNode* temp = graph->array[source].head->next;
+
+        while( temp != NULL && temp->graph_node_id != target){
+            prev = temp;
+            temp = temp->next;
         }
-        else ptr = ptr->next;
+        if (temp == NULL) return; // If target is not present in the adjacent list
+        prev->next = temp->next; // Unlink the node from the adjacent list
+        free(temp); // Free memory
     }
 }
