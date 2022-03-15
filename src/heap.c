@@ -77,15 +77,27 @@ int delete_heap(Minheap *h) // Delete a task from the heap.
 
 void decreaseKey(Minheap* h, int n, int dist) // FRÅGA Förstår inte riktigt hur jag ska implemetera denna funktion...
 {
-    for (int i = 1; i <= h->cur_size; i++)
-    {
-        h->pos[n] = i;
-        if (h->array[h->pos[n]]->graph_node_id == n);
-        {
-            h->array[h->pos[n]]->dist = dist;
+    // for (int i = 1; i <= h->cur_size; i++)
+    // {
+    //     h->pos[n] = i;
+    //     if (h->array[h->pos[n]]->graph_node_id == n);
+    //     {
+    //         h->array[h->pos[n]]->dist = dist;
+    //     }
+    // }
+    int parent = n/2;
+    if(dist < h->array[n]->dist) { // Hur ska jag använda pos...
+        h->array[n]->dist = dist;
+        while(n > 0 && h->array[parent] > h->array[n]) {
+            //swap
+            unsigned int temp1 = h->array[parent];
+            h->array[parent] = h->array[n];
+            h->array[n] = temp1;
+            parent = n / 2;
         }
     }
-    //  for(int i = 0; i < n; i++) {
+
+    // for(int i = 0; i < n; i++) {
     //     if(heap[i][1] == u) {
     //         if(weight < heap[i][0]) {
     //             heap[i][0] = weight;
