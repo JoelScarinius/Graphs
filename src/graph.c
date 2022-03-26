@@ -12,10 +12,6 @@ Graph* createGraph(int numOfNodes)
         graph->array[i].head = (AdjListNode*)malloc(sizeof(AdjListNode));
         graph->array[i].head->graph_node_id = i;
         graph->array[i].head->next = NULL;
-        // AdjListNode* head = (AdjListNode*)malloc(sizeof(AdjListNode));
-        // head->graph_node_id = i;
-        // head->next = NULL;
-        // graph->array[i].head = head;
     }
     return graph;
 }
@@ -41,6 +37,7 @@ void addEdge(Graph* graph, int source, int target, int weight)
 {
     AdjListNode* newAdjListNode = (AdjListNode*)malloc(sizeof(AdjListNode));
     newAdjListNode->graph_node_id = target;
+    newAdjListNode->weight = weight;
     newAdjListNode->next = NULL;
 
     AdjListNode *adjListNode = graph->array[source].head;

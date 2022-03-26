@@ -3,23 +3,25 @@
 
 MinHeapNode* new_min_heap_node(int n, int dist)
 {
+    // MinHeapNode *newHeapNode = (MinHeapNode*) malloc(sizeof(MinHeapNode));
     MinHeapNode *newHeapNode = (MinHeapNode*) malloc(sizeof(MinHeapNode));
     newHeapNode->graph_node_id = n;
     newHeapNode->dist = dist;
     return newHeapNode;
 }
 
-Minheap *create_heap(int m) // Creates the heap where nodes will be stored.
+Minheap* create_heap(int m) // Creates the heap where nodes will be stored.
 {
     Minheap *newMinHeap = (Minheap*) malloc(sizeof(Minheap)); // Allocates memmory on the heap for the heap;
-    if (newMinHeap == NULL) { // If memory wasn't possible to allocate for any reason.
+    if (newMinHeap == NULL) // If memory wasn't possible to allocate for any reason.
+    { 
         puts("Failed to allocate memory on the heap!");
         exit(-1);
     }
-    for (size_t i = 0; i <= m ; i++) newMinHeap->array[i] = NULL;
-    // newMinHeap->pos = newMinHeap->array[1];
+    newMinHeap->array = (MinHeapNode**) malloc(sizeof(MinHeapNode*)*m); // Create an N-size array of adjacency lists.  
+    newMinHeap->pos = malloc(sizeof(int)*m);
     newMinHeap->max_size = m;
-    newMinHeap->cur_size = 1;
+    newMinHeap->cur_size = 0;
     return newMinHeap;
 }
 
@@ -31,6 +33,8 @@ int insert_heap(Minheap *h, MinHeapNode *n) // FRÅGA står "t" adjacent listnod
         h->cur_size++;
         pos = h->cur_size;
         h->array[pos] = n; // Inserts a MinHeapNode at the end of the heap.
+        // h->array[pos]->graph_node_id = n->graph_node_id; // Inserts a MinHeapNode at the end of the heap.
+        // h->array[pos]->dist = n->dist; // Inserts a MinHeapNode at the end of the heap.
         while (pos > 1) {
             int par = pos / 2;
             if (h->array[pos]->dist >= h->array[par]->dist) return 1; // MinHeapNode was inserted to heap.
@@ -85,17 +89,18 @@ void decreaseKey(Minheap* h, int n, int dist) // FRÅGA Förstår inte riktigt h
     //         h->array[h->pos[n]]->dist = dist;
     //     }
     // }
-    int parent = n/2;
-    if(dist < h->array[n]->dist) { // Hur ska jag använda pos...
-        h->array[n]->dist = dist;
-        while(n > 0 && h->array[parent] > h->array[n]) {
-            //swap
-            unsigned int temp1 = h->array[parent];
-            h->array[parent] = h->array[n];
-            h->array[n] = temp1;
-            parent = n / 2;
-        }
-    }
+    // h->pos[n] = i;
+    // int parent = n/2;
+    // if(dist < h->array[n]->dist) { // Hur ska jag använda pos...
+    //     h->array[n]->dist = dist;
+    //     while(n > 0 && h->array[parent] > h->array[n]) {
+    //         //swap
+    //         unsigned int temp1 = h->array[parent];
+    //         h->array[parent] = h->array[n];
+    //         h->array[n] = temp1;
+    //         parent = n / 2;
+    //     }
+    // }
 
     // for(int i = 0; i < n; i++) {
     //     if(heap[i][1] == u) {
@@ -117,9 +122,30 @@ void decreaseKey(Minheap* h, int n, int dist) // FRÅGA Förstår inte riktigt h
     //         break;
     //     }
     // }
+    // decrease value of d for a given vertex v  {
+    	// Retrieve current index of node
+    	int idx = h->pos[n];
+    	// update value of d of the node
+    	h->array[idx]->dist = dist;
+        int parent = (idx) / 2;
+    	while (idx > 1)
+    	// while (h->array[idx]->dist < h->array[parent]->dist && idx)
+	    {	 
+            if (h->array[idx]->dist >= h->array[parent]->dist) return;
+    		h->pos[h->array[idx]->graph_node_id] = parent;
+        	h->pos[h->array[parent]->graph_node_id] = idx;
+ 		    //swap
+            MinHeapNode *temp = h->array[idx];
+            h->array[idx] = h->array[parent];
+            h->array[parent] = temp;
+
+		// move to parent 
+        	idx = parent;
+    	}
+
 }
 
-MinHeapNode *findmin(Minheap *h)  // Finds the node with the shortest dist (always the root of the binary minheap).
+MinHeapNode* findmin(Minheap *h)  // Finds the node with the shortest dist (always the root of the binary minheap).
 {
     if (is_empty(h) == 1) return NULL; // Empty heap.
     MinHeapNode *minDist = h->array[1];
@@ -129,8 +155,8 @@ MinHeapNode *findmin(Minheap *h)  // Finds the node with the shortest dist (alwa
 void destroy_heap(Minheap *h) // Frees the allocated memory for the heap.
 {
     if (h != NULL) {
-        free(h);
         free(h->array);
+        free(h);
         h = NULL;
     }
     else puts("Failed to destroy heap");
