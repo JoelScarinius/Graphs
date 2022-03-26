@@ -9,10 +9,13 @@ Graph* createGraph(int numOfNodes)
 
     for (int i = 0; i < numOfNodes; ++i)//Initialize each adjacency list
     { 
-        AdjListNode* head = (AdjListNode*)malloc(sizeof(AdjListNode));
-        head->graph_node_id = i;
-        head->next = NULL;
-        graph->array[i].head = head;
+        graph->array[i].head = (AdjListNode*)malloc(sizeof(AdjListNode));
+        graph->array[i].head->graph_node_id = i;
+        graph->array[i].head->next = NULL;
+        // AdjListNode* head = (AdjListNode*)malloc(sizeof(AdjListNode));
+        // head->graph_node_id = i;
+        // head->next = NULL;
+        // graph->array[i].head = head;
     }
     return graph;
 }
