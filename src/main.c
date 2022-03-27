@@ -39,10 +39,9 @@ int main(void)
     displayGraph(graph, cities);
 
     int source_node;
-    printf("\n0: Jönköping, 1: Ulricehamn, 2: Värnamo, 3: Göteborg, 4: Helsingborg, 5: Ljunby, 6: Malmö");
+    printf("\n0: Jönköping, 1: Ulricehamn, 2: Värnamo, 3: Göteborg, 4: Helsingborg, 5: Ljungby, 6: Malmö");
     printf("\nEnter the city :  ");
     scanf("%d", &source_node);
-
 
     //store the minimun distance
     int dist[GRAPH_NODE_N];
@@ -59,48 +58,41 @@ int main(void)
     return 0;
 }
 
-void dijkstra(int source_node, int dist[], Graph* graph) //
+void dijkstra(int source_node, int dist[], Graph* graph) // The function that calculates the distances of shortest paths between cities
 {   
-    // AdjListNode *startingNode = graph->array[source_node].head, *adjNode = graph->array[startingNode->next->graph_node_id].head, *ptr = startingNode, ptr2;
-    // int flag, noPathToSource = 0, pathDistance = 0, id = 0;
     int flag;
-    // bool duplicate = false;
-    
-    
     Minheap *h = create_heap(graph->N);
     
-    for (size_t i = 0; i < graph->N; i++) 
+    for (size_t i = 0; i < graph->N; i++) // Initialize all nodes with dist = INFINITY and insert them into the heap.
     {
         dist[i] = INFINITY;
         MinHeapNode *n = new_min_heap_node(i, dist[i]);
         (flag = insert_heap(h, n)) ? puts("Insertion was successful") : puts("Heap is full");
-        h->pos[i] = i;
+        h->pos[i] = i+1; // Keeps track of the index in the heap of every node.
     } 
-    h->array[source_node] = new_min_heap_node(source_node, dist[source_node]);
-    h->pos[0] = source_node;
-    dist[source_node] = 0;
-    decreaseKey(h, source_node, dist[source_node]);
+    dist[source_node] = 0; // Initialize source_node with distance = 0.
+    decreaseKey(h, source_node, dist[source_node]); // Decrease sourceNodes distance value.
     
-    while (h->cur_size > 0)
+    while (h->cur_size > 0) // Loops until the entire heap is empty.
     {
-        MinHeapNode *n = findmin(h);
+        MinHeapNode *n = findmin(h); // Finds the node with shortest distance in the heap (always the root).
         (flag = delete_heap(h)) ? puts("Deletion was successful") : puts("Heap is empty");
+        
+        int nodeId = n->graph_node_id; // Id of the node deleted from heap
+        
+        AdjListNode *adjNode = graph->array[nodeId].head;
 
-        int node = n->graph_node_id;
-
-        AdjListNode *adjNode = graph->array[node].head;
-
-        while (adjNode != NULL)
+        while (adjNode != NULL) // Loops until all nodes in adjList has been visited.
         {
-            int idx = adjNode->graph_node_id;
-            if (dist[node] != INFINITY )
+            int adjNodeId = adjNode->graph_node_id; // Id of the adjacent node to the node n.
+            if (dist[nodeId] != INFINITY )
             {
-                if (h->pos[idx] < h->cur_size)
+                if ((h->pos[adjNodeId])-1 < (h->cur_size)+1)
                 {
-                    if (adjNode->weight + dist[node] < dist[idx])
+                    if (adjNode->weight + dist[nodeId] < dist[adjNodeId]) // Changes the distance value if shorter distance is found.
                     {
-                        dist[idx] = dist[node] + adjNode->next->weight;
-                        decreaseKey(h, idx, dist[idx]);
+                        dist[adjNodeId] = dist[nodeId] + adjNode->weight;
+                        decreaseKey(h, adjNodeId, dist[adjNodeId]); 
                     }
                     
                 }
@@ -109,119 +101,5 @@ void dijkstra(int source_node, int dist[], Graph* graph) //
             adjNode = adjNode->next;
         }
     }
-    
-    //Hyffsat försök men tror det är fel
-    // while (adjNode != NULL)
-    // {   
-    //     if (startingNode->next != NULL)
-    //     {
-    //         for (size_t i = 1; i <= h->cur_size; i++)
-    //             if (adjNode->graph_node_id == (id = h->array[i]->graph_node_id)) duplicate = true;
-    //         if (duplicate == false)
-    //         {
-    //             // pathDistance = startingNode->next->weight;
-    //             n = new_min_heap_node(adjNode->graph_node_id, pathDistance += graph->array[ptr->graph_node_id].head->next->weight);
-    //             (flag = insert_heap(h, n)) ? puts("Insertion was successful") : puts("Heap is full");
-    //             ptr = graph->array[ptr->next->graph_node_id].head;
-    //             if (adjNode->next != NULL) adjNode = graph->array[adjNode->next->graph_node_id].head;
-    //         }
-    //         else if (adjNode->next != NULL)
-    //         {
-    //             adjNode = graph->array[adjNode->next->graph_node_id].head;
-    //             duplicate = false;
-    //         }
-    //         else if (startingNode->next != NULL)
-    //         {
-    //             startingNode = startingNode->next;
-    //             if (startingNode->next != NULL)
-    //             {
-    //                 ptr = startingNode->next;
-    //                 if (ptr->next != NULL) adjNode = graph->array[ptr->next->graph_node_id].head;
-    //             }
-    //         }
-    //     }
-    //     else
-    //     {
-    //         for (size_t i = 0; i < graph->N; i++)
-    //         {   
-    //             for (size_t j = 1; j <= h->cur_size; j++)
-    //                 if (i == (id = h->array[j]->graph_node_id)) duplicate = true;
-    //             if (duplicate == false)
-    //             {
-    //                 n = new_min_heap_node(graph->array[i].head->graph_node_id, noPathToSource);
-    //                 (flag = insert_heap(h, n)) ? puts("Insertion was successful") : puts("Heap is full");
-    //             }
-    //             duplicate = false;
-    //         }
-    //         break;
-    //     }   
-    // }
-
-    //      n = findmin(h);
-    //     (flag = delete_heap(h)) ? puts("Deletion was successful") : puts("Heap is empty");
-    //     while (ptr != NULL)
-    //     {
-    //         ptr = graph->array[n->graph_node_id].head->next;
-    //         // decreaseKey(h, ptr->graph_node_id, ptr->weight);
-    //         dist[ptr->graph_node_id] = ptr->weight;
-    //         ptr = ptr->next;
-    //     }
-    // }
-    
-     
-    /*
-    ALGORITHM
-    1. Select the source node also called the initial node
-    2. Define an empty set N that will be used to hold nodes to which a shortest path has been found.
-    3. Label the initial node with 0, and insert it into N. 
-    // Set weight or dist = 0 of the source node.
-    4. Repeat Steps 5 to 7 until the destination node is in N or there are no more labelled nodes in N.
-    5. Consider each node that is not in N and is connected by an edge from the newly inserted node.
-    6. (a) If the node that is not in N has no label then SET the label of the 
-    node = the label of the newly inserted node + the length of the edge.
-    (b) Else if the node that is not in N was already labelled, then SET its new
-    label = minimum (label of newly inserted vertex + length of edge, old label)
-    7. Pick a node not in N that has the smallest label assigned to it and add it to N.
-    */
-
-   // Testa detta
-//    unsigned int heap[n][2];
-//     unsigned int S[n];
-    
-//     for(int i = 0; i < n; i++) {
-//         distance[i][0] = 0xFFFFFFFF;
-//         distance[i][1] = 0xFFFFFFFF;
-//         heap[i][0] = 0xFFFFFFFF;
-//         heap[i][1] = i;
-//         S[i] = 0;
-//     }
-//     distance[s][0] = 0;
-//     distance[s][1] = 0;
-//     heap[s][0] = 0;
-    
-//     unsigned int heap_size = n;
-    
-//     build_min_heap(heap, heap_size);
-    
-//     while(heap_size > 0) {
-//         unsigned int u = -1;
-//         unsigned int min_val = heap_extract_min(heap, heap_size, &u);
-
-//         if (u == -1) {
-//            printf("unexpected case\n");
-//             break;
-//         }        
-//         S[u] = 1; 
-//         heap_size--;
-//         if(min_val == (unsigned int)-1) {
-//             break;
-//         } else {
-//             for (unsigned int v = 0; v < n; v++) {
-//                 unsigned int w = adj_matrix[u][v];
-//                 if (w != (unsigned int)-1 && S[v] != 1) {
-//                     relax(heap, distance, u, v, w, heap_size);
-//                 }
-//             }
-//         }
-//     }
+    destroy_heap(h);
 }

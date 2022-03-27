@@ -1,10 +1,14 @@
 #include "heap.h"
 #include <stdlib.h>
 
-MinHeapNode* new_min_heap_node(int n, int dist)
+MinHeapNode* new_min_heap_node(int n, int dist) // Allocates memory for a new min heap node
 {
-    // MinHeapNode *newHeapNode = (MinHeapNode*) malloc(sizeof(MinHeapNode));
     MinHeapNode *newHeapNode = (MinHeapNode*) malloc(sizeof(MinHeapNode));
+    if (newHeapNode == NULL) // If memory wasn't possible to allocate for any reason.
+    { 
+        puts("Failed to allocate memory on the heap!");
+        exit(-1);
+    }
     newHeapNode->graph_node_id = n;
     newHeapNode->dist = dist;
     return newHeapNode;
@@ -13,13 +17,13 @@ MinHeapNode* new_min_heap_node(int n, int dist)
 Minheap* create_heap(int m) // Creates the heap where nodes will be stored.
 {
     Minheap *newMinHeap = (Minheap*) malloc(sizeof(Minheap)); // Allocates memmory on the heap for the heap;
-    if (newMinHeap == NULL) // If memory wasn't possible to allocate for any reason.
+    newMinHeap->array = (MinHeapNode**) malloc(sizeof(MinHeapNode*)*m); // Create an N-size array of adjacency lists.  
+    newMinHeap->pos = malloc(sizeof(int)*m);
+    if (newMinHeap == NULL || newMinHeap->array == NULL || newMinHeap->pos == NULL) // If memory wasn't possible to allocate for any reason.
     { 
         puts("Failed to allocate memory on the heap!");
         exit(-1);
     }
-    newMinHeap->array = (MinHeapNode**) malloc(sizeof(MinHeapNode*)*m); // Create an N-size array of adjacency lists.  
-    newMinHeap->pos = malloc(sizeof(int)*m);
     newMinHeap->max_size = m;
     newMinHeap->cur_size = 0;
     return newMinHeap;
@@ -33,8 +37,6 @@ int insert_heap(Minheap *h, MinHeapNode *n) // FRÅGA står "t" adjacent listnod
         h->cur_size++;
         pos = h->cur_size;
         h->array[pos] = n; // Inserts a MinHeapNode at the end of the heap.
-        // h->array[pos]->graph_node_id = n->graph_node_id; // Inserts a MinHeapNode at the end of the heap.
-        // h->array[pos]->dist = n->dist; // Inserts a MinHeapNode at the end of the heap.
         while (pos > 1) {
             int par = pos / 2;
             if (h->array[pos]->dist >= h->array[par]->dist) return 1; // MinHeapNode was inserted to heap.
@@ -79,70 +81,25 @@ int delete_heap(Minheap *h) // Delete a task from the heap.
     return 1; // MinHeapNode was deleted.
 }
 
-void decreaseKey(Minheap* h, int n, int dist) // FRÅGA Förstår inte riktigt hur jag ska implemetera denna funktion...
+void decreaseKey(Minheap* h, int n, int dist) // Decrease the distance value for given node and heapify the heap.
 {
-    // for (int i = 1; i <= h->cur_size; i++)
-    // {
-    //     h->pos[n] = i;
-    //     if (h->array[h->pos[n]]->graph_node_id == n);
-    //     {
-    //         h->array[h->pos[n]]->dist = dist;
-    //     }
-    // }
-    // h->pos[n] = i;
-    // int parent = n/2;
-    // if(dist < h->array[n]->dist) { // Hur ska jag använda pos...
-    //     h->array[n]->dist = dist;
-    //     while(n > 0 && h->array[parent] > h->array[n]) {
-    //         //swap
-    //         unsigned int temp1 = h->array[parent];
-    //         h->array[parent] = h->array[n];
-    //         h->array[n] = temp1;
-    //         parent = n / 2;
-    //     }
-    // }
+    int adjNodeId = h->pos[n], par; // Retrieve current index of node
+    h->array[adjNodeId]->dist = dist; // Update value of distance of the node
+    if ((par = (adjNodeId-1) / 2) == 0) par++; // Par can't be 0.
 
-    // for(int i = 0; i < n; i++) {
-    //     if(heap[i][1] == u) {
-    //         if(weight < heap[i][0]) {
-    //             heap[i][0] = weight;
-    //             unsigned int parent = HEAP_PARENT(i);
-    //             while(i > 0 && heap[parent][0] > heap[i][0]) {
-    //                 //swap
-    //                 unsigned int temp1 = heap[parent][0];
-    //                 unsigned int temp2 = heap[parent][1];
-    //                 heap[parent][0] = heap[i][0];
-    //                 heap[parent][1] = heap[i][1];
-    //                 heap[i][0] = temp1;
-    //                 heap[i][1] = temp2;
-    //                 i = parent;
-    //                 parent = HEAP_PARENT(i);
-    //             }
-    //         }
-    //         break;
-    //     }
-    // }
-    // decrease value of d for a given vertex v  {
-    	// Retrieve current index of node
-    	int idx = h->pos[n];
-    	// update value of d of the node
-    	h->array[idx]->dist = dist;
-        int parent = (idx) / 2;
-    	while (idx > 1)
-    	// while (h->array[idx]->dist < h->array[parent]->dist && idx)
-	    {	 
-            if (h->array[idx]->dist >= h->array[parent]->dist) return;
-    		h->pos[h->array[idx]->graph_node_id] = parent;
-        	h->pos[h->array[parent]->graph_node_id] = idx;
- 		    //swap
-            MinHeapNode *temp = h->array[idx];
-            h->array[idx] = h->array[parent];
-            h->array[parent] = temp;
-
-		// move to parent 
-        	idx = parent;
-    	}
-
+    while (h->array[adjNodeId]->dist < h->array[par]->dist && adjNodeId)
+    {	 
+        // Changes pos to still point to the correct index for both par and current node
+        h->pos[h->array[adjNodeId]->graph_node_id] = par; 
+        h->pos[h->array[par]->graph_node_id] = adjNodeId;
+        // Swap
+        MinHeapNode *temp = h->array[adjNodeId];
+        h->array[adjNodeId] = h->array[par];
+        h->array[par] = temp;
+        // Move to par 
+        adjNodeId = par;
+        if ((par = (adjNodeId-1)/2) == 0) par++; // Par can't be 0.
+    }
 }
 
 MinHeapNode* findmin(Minheap *h)  // Finds the node with the shortest dist (always the root of the binary minheap).
@@ -166,29 +123,12 @@ void display_heap(Minheap *h) // Displays all the nodes in the heap.
 {
     if(is_empty(h) == 1) puts("HEAP IS EMPTY");
     else {
-        // puts("NODES IN HEAP:");
-        for(size_t i = 1; i <= h->max_size; i++) 
+        for(size_t i = 1; i <= h->cur_size; i++) 
         {
-            // printf("[task: %d dist, arrives at %d second], ", h->array[i]->dist, h->array[i]->time_stamp);
+            printf("Heap elements are: %d\t", h->array[i]->graph_node_id);
         }
         printf("\n");
     }
-    // if (tree == NULL)
-    // {
-    //     return;
-    // }
-    // for (size_t i = 0; i < tree->key_count; i++)
-    // {
-    //     traverse(tree->children[i], level + 1);
-    //     printf("\n");
-    //     for (size_t i = 0; i < level; i++)
-    //     {
-    //         printf("  ");
-    //         //fflush(stdout);
-    //     }
-    //     printf("%d ", tree->keys[i]);
-    // }
-    // traverse(tree->children[tree->key_count], level + 1);
 }
 
 int is_empty(Minheap *h) // Checks whether the heap is empty
